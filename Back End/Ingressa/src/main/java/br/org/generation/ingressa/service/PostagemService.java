@@ -3,12 +3,13 @@ package br.org.generation.ingressa.service;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
+import org.springframework.web.server.ResponseStatusException;
 
 import br.org.generation.ingressa.model.Postagem;
 import br.org.generation.ingressa.model.Usuario;
@@ -28,6 +29,8 @@ public class PostagemService {
 	public Postagem verificacaoPostagem(Postagem postagem) {
 		
 		Optional<Usuario> usuario = usuarioRepository.findById(postagem.getUsuario().getId());
+		
+		postagem.setQtCurtidas(0);
 			
 		
 		if(usuario.get().isUsuarioEmpregador() == true) {
@@ -43,6 +46,80 @@ public class PostagemService {
 		}
 
 	}
+	
+	public Postagem atualizarPostagem(Postagem postagem) {
+		
+	Optional<Postagem> postagemBase = postagemRepository.findById(postagem.getId());
+	
+	Optional<Usuario> usuario = usuarioRepository.findById(postagem.getUsuario().getId());
+	
+	
+	if(postagemBase.isPresent()) {
+		
+		if(postagemBase.get().getUsuario().getId() == postagem.getUsuario().getId()) {
+			
+			postagem.setDataDePostagem(postagemBase.get().getDataDePostagem());	
+			
+			if(postagem.getQtCurtidas() == null) {
+				postagem.setQtCurtidas(postagemBase.get().getQtCurtidas());
+			}
+			else {
+				return null;
+			}
+			
+	
+			if(postagem.getRegiao() == null) {
+				postagem.setRegiao(postagemBase.get().getRegiao());
+			}
+			else {
+				if(usuario.get().isUsuarioEmpregador() == true) {
+					postagem.setRegiao(postagem.getRegiao());
+				}
+				else {
+					return null;
+				}
+			}
+			if(postagem.getCargo() == null) {
+				postagem.setCargo(postagemBase.get().getCargo());
+			}
+			else {
+				if(usuario.get().isUsuarioEmpregador() == true) {
+					postagem.setCargo(postagem.getCargo());
+				}
+				else {
+					return null;
+				}
+			}
+			if(postagem.getTitulo() == null) {
+				postagem.setTitulo(postagemBase.get().getTitulo());
+			}
+			if(postagem.getTexto() == null) {
+				postagem.setTexto(postagemBase.get().getTexto());
+			}
+			if(postagem.getMidia() == null) {
+				postagem.setMidia(postagemBase.get().getMidia());
+			}
+							
+			if(postagem.getTema() == null) {							
+				postagem.setTema(postagemBase.get().getTema());
+			}
+			
+			return postagemRepository.save(postagem);
+						
+			
+		}
+		
+		else {
+			
+			 return null;
+		}
+		
+	}
+	
+	return null;
+		
+	}
+	
 
 	public Postagem curtir(Long id) {
 
@@ -68,8 +145,7 @@ public class PostagemService {
 
 		}
 
-		return postagemRepository.save(postagem);
-
+		return (postagemRepository.save(postagem));
 	}
 	
 	public List<Postagem> postagensEmAlta() {
@@ -84,14 +160,16 @@ public class PostagemService {
 
 	private Postagem buscarPostagemPeloId(Long id) {
 
-		Postagem postagemSalva = postagemRepository.findById(id).orElse(null);
 
-		if (postagemSalva == null) {
-
-			throw new EmptyResultDataAccessException(1);
+		try {
+			return postagemRepository.findById(id).orElseThrow();	
+		}
+		catch(NoSuchElementException e) {
+			throw new ResponseStatusException(
+			          HttpStatus.BAD_REQUEST, "", e);
 		}
 
-		return postagemSalva;
+		
 	}
-
+	
 }

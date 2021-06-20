@@ -46,7 +46,7 @@ public class Postagem {
 	private String midia;
 
 	@PositiveOrZero
-	private int qtCurtidas;
+	private Integer qtCurtidas;
 	
 
 	@ManyToOne
@@ -114,11 +114,11 @@ public class Postagem {
 		this.midia = midia;
 	}
 
-	public int getQtCurtidas() {
+	public Integer getQtCurtidas() {
 		return qtCurtidas;
 	}
 
-	public void setQtCurtidas(int qtCurtidas) {
+	public void setQtCurtidas(Integer qtCurtidas) {
 		this.qtCurtidas = qtCurtidas;
 	}
 
@@ -129,7 +129,7 @@ public class Postagem {
 	public void setTema(Tema tema) {
 		this.tema = tema;
 	}
-
+	
 	public Usuario getUsuario() {
 		return usuario;
 	}

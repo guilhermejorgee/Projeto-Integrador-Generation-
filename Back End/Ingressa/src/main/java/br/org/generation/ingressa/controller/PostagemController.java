@@ -67,29 +67,34 @@ public class PostagemController {
 
 	@PostMapping
 	public ResponseEntity<Postagem> fazerPostagem(@RequestBody Postagem postagem) {
+		if(postagemService.verificacaoPostagem(postagem) == null) 
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 		return ResponseEntity.status(HttpStatus.CREATED).body(postagemService.verificacaoPostagem(postagem));
 	}
 
 	@PutMapping
 	public ResponseEntity<Postagem> atualizarPostagem(@RequestBody Postagem postagem) {
-		return ResponseEntity.status(HttpStatus.OK).body(repository.save(postagem));
+		if(postagemService.atualizarPostagem(postagem) == null)
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+		return ResponseEntity.status(HttpStatus.OK).body(postagemService.atualizarPostagem(postagem));
 	}
 
 	@PutMapping("/curtir/{id}")
-	public ResponseEntity<Postagem> atulizarCurtirPostagemId(@PathVariable Long id) {
+	public ResponseEntity<Postagem> atualizarCurtirPostagemId(@PathVariable Long id) {
 
 		return ResponseEntity.status(HttpStatus.OK).body(postagemService.curtir(id));
+		
 	}
 
 	@PutMapping("/descurtir/{id}")
-	public ResponseEntity<Postagem> ataulizarDescurtirPostagemId(@PathVariable Long id) {
+	public ResponseEntity<Postagem> atualizarDescurtirPostagemId(@PathVariable Long id) {
 
 		return ResponseEntity.status(HttpStatus.OK).body(postagemService.descurtir(id));
 
 	}
 	
 	@GetMapping("/emalta")
-	public ResponseEntity<List<Postagem>> ataulizarDescurtirPostagemId() {
+	public ResponseEntity<List<Postagem>> postagemAlta() {
 
 	return ResponseEntity.status(HttpStatus.OK).body(postagemService.postagensEmAlta());
 
@@ -97,6 +102,7 @@ public class PostagemController {
 
 	@DeleteMapping("/{id}")
 	public void delete(@PathVariable long id) {
+		
 		repository.deleteById(id);
 
 	}
